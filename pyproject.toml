@@ -1,0 +1,37 @@
+[build-system]
+requires = ["setuptools>=77"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "aei-link-clearance"
+dynamic = ["version"]
+description = "Batch microwave link terrain clearance and margin-based risk ranking, built on aei-geo-features."
+readme = "README.md"
+requires-python = ">=3.9"
+license = "Apache-2.0"
+license-files = ["LICENSE"]
+authors = [{ name = "AID Edge Inc." }]
+keywords = ["microwave", "point-to-point", "fresnel-zone", "terrain-clearance", "link-budget"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Telecommunications Industry",
+    "Programming Language :: Python :: 3",
+    "Topic :: Scientific/Engineering",
+]
+dependencies = [
+    "aei-geo-features>=0.1.4",
+]
+
+[project.optional-dependencies]
+elevation = ["requests>=2.31"]
+batch = ["pandas>=1.5"]
+dev = ["pytest>=7.0", "requests>=2.31", "pandas>=1.5"]
+
+[tool.setuptools.dynamic]
+version = { attr = "aei_link_clearance.__version__" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+aei_link_clearance = ["py.typed"]
