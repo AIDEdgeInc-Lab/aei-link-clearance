@@ -1,5 +1,10 @@
 # aei-link-clearance
 
+[![PyPI version](https://img.shields.io/pypi/v/aei-link-clearance.svg)](https://pypi.org/project/aei-link-clearance/)
+[![Python versions](https://img.shields.io/pypi/pyversions/aei-link-clearance.svg)](https://pypi.org/project/aei-link-clearance/)
+[![License](https://img.shields.io/pypi/l/aei-link-clearance.svg)](https://github.com/AIDEdgeInc-Lab/aei-link-clearance/blob/main/LICENSE)
+[![CI](https://github.com/AIDEdgeInc-Lab/aei-link-clearance/actions/workflows/ci.yml/badge.svg)](https://github.com/AIDEdgeInc-Lab/aei-link-clearance/actions/workflows/ci.yml)
+
 Batch microwave link terrain-clearance and margin-based risk ranking. Built
 on top of [`aei-geo-features`](https://github.com/AIDEdgeInc-Lab/aei-geo-features)
 (distance, coordinate validation) via a real package dependency, not a
