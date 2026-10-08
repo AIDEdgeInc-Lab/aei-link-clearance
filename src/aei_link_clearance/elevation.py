@@ -14,11 +14,22 @@ package does not include or imply one.
 """
 from __future__ import annotations
 
+import math
 from typing import List, Sequence, Tuple
 
 ELEVATION_URL = "https://api.open-meteo.com/v1/elevation"
 MAX_COORDS_PER_REQUEST = 100
 SOURCE = "Open-Meteo Elevation API (Copernicus DEM GLO-90, 90m, surface model)"
+
+
+class ElevationDataError(ValueError):
+    """The elevation service returned data that cannot be used as it is: the wrong number of values, or a value that is missing or not a
+    finite number (null, NaN, infinity, text). A missing elevation is never treated as 0 m. Subclasses ValueError, so code that already
+    catches the wrong-count ValueError keeps working."""
+
+
+def _is_finite_number(v) -> bool:
+    return isinstance(v, (int, float)) and not isinstance(v, bool) and math.isfinite(v)
 
 
 def get_elevations(points: Sequence[Tuple[float, float]], timeout: float = 15.0) -> List[float]:
@@ -44,9 +55,14 @@ def get_elevations(points: Sequence[Tuple[float, float]], timeout: float = 15.0)
         data = resp.json()
         batch_elevations = data.get("elevation")
         if batch_elevations is None or len(batch_elevations) != len(batch):
-            raise ValueError(
+            raise ElevationDataError(
                 f"Open-Meteo Elevation API returned {len(batch_elevations or [])} values "
                 f"for {len(batch)} requested points -- refusing to guess which is which."
+            )
+        if not all(_is_finite_number(e) for e in batch_elevations):
+            raise ElevationDataError(
+                "Open-Meteo Elevation API returned a missing or non-numeric elevation (null/NaN) -- "
+                "it is never treated as 0 m."
             )
         elevations.extend(float(e) for e in batch_elevations)
     return elevations

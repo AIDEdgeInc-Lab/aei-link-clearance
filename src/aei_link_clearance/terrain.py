@@ -44,6 +44,13 @@ DEFAULT_SAMPLE_COUNT = 50  # points along the path; keeps one link to one Open-M
 # claimed as one anywhere this constant is used.
 ELEVATION_UNCERTAINTY_M = 15.0
 
+# Names the earth-curvature sign convention this module implements. A program that depends on this package (for example one that must not
+# mix results from releases with different conventions) can read ``aei_link_clearance.terrain.CLEARANCE_CONVENTION`` and refuse to run if
+# it is missing or different. Releases before 0.2.0 do not define it and used the opposite sign.
+#   "bulge-added-to-terrain": the effective-earth bulge is added to the terrain elevation (terrain_adjusted = ground + bulge), i.e. it is
+#   subtracted from the geometric clearance. The value changes only if the convention changes.
+CLEARANCE_CONVENTION = "bulge-added-to-terrain"
+
 
 def earth_bulge_m(d1_km: float, d2_km: float, k_factor: float = DEFAULT_K_FACTOR) -> float:
     """Earth-curvature bulge height, in metres, at a point ``d1_km`` from
@@ -52,11 +59,14 @@ def earth_bulge_m(d1_km: float, d2_km: float, k_factor: float = DEFAULT_K_FACTOR
 
         h = (d1 * d2) / (2 * k * R)
 
-    with d1, d2, R in the same units (km here), converted to metres. This
-    is the standard way earth curvature is folded into a terrain profile:
-    subtract this from the raw terrain elevation so a straight line
-    between antenna heights on the ADJUSTED profile represents the true
-    curved-earth line of sight.
+    with d1, d2, R in the same units (km here), converted to metres.
+
+    Sign convention: the bulge is ADDED to the terrain elevation, so a
+    straight line between the antenna tops on the ADJUSTED profile
+    represents the true curved-earth line of sight; equivalently the bulge
+    is SUBTRACTED from the geometric clearance. Releases before 0.2.0
+    subtracted it from the terrain instead, which overstated clearance by
+    twice the bulge (about 42.7 m at the middle of a 38.1 km path).
     """
     if k_factor <= 0:
         raise ValueError(f"k_factor must be positive: {k_factor}")
@@ -70,7 +80,7 @@ class ProfilePoint:
     longitude: float
     ground_elevation_m: float
     earth_bulge_m: float
-    terrain_adjusted_m: float  # ground_elevation_m - earth_bulge_m
+    terrain_adjusted_m: float  # ground_elevation_m + earth_bulge_m
     los_height_m: float  # straight line between the two antenna tops, at this point
     fresnel_radius_m: float
     clearance_m: float  # los_height_m - terrain_adjusted_m
@@ -168,7 +178,7 @@ def analyze_link(
         d1 = distance_km * f
         d2 = distance_km * (1 - f)
         bulge = earth_bulge_m(d1, d2, k_factor)
-        terrain_adjusted = ground_elev - bulge
+        terrain_adjusted = ground_elev + bulge
         los_height = antenna_a_top_m + f * (antenna_b_top_m - antenna_a_top_m)
         f1_radius = fresnel_radius_m(d1, d2, frequency_ghz)
         clearance = los_height - terrain_adjusted
