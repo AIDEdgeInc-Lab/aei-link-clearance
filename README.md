@@ -71,24 +71,42 @@ frequency both tools support), k=4/3 in both:
 | 2: obstructed, escarpment | Niagara Escarment crossing, 14.46 km, 15 m/15 m towers | obstructed, ground 62.2 m above sightline at 4.43 km, F1 12.6 m / required 7.55 m | blocked, ground 76 m above sightline at 4.35 km, F1 13 m / required 7.5 m | Same verdict, F1/required nearly identical; obstruction **magnitude** differs by ~14 m |
 | 3: marginal (this pkg) / blocked (theirs) | Same escarpment path, 83 m/83 m towers | marginal, ratio 0.76, clearance +5.8 m (LOS geometrically clear) | blocked, ground 7.6 m above sightline | **Verdict disagreement** -- same ~13-14 m gap as case 2, same location |
 
-**Diagnosis**: bearing, the Fresnel formula, and the earth-curvature
-geometry are independently verified correct (case 1's exact formula match;
-case 2's near-identical F1/required figures; both tools agree on bearing
-and total distance). The remaining ~13-14 m gap in cases 2/3, consistent
-in both magnitude and location, is attributable to **elevation data
-source**, not a bug: this package uses Copernicus DEM GLO-90 (90 m),
-uptowhere.com uses AWS Terrain Tiles (~30 m) -- two different DEM products
-that commonly diverge by this much on steep, sharp local relief like an
-escarpment edge. Ruled out sampling density as the cause directly: doubling
-this package's sample count (50 -> 100 points) changed the result by
-<1 m, not ~14 m, so the gap isn't an artifact of under-sampling either.
+**Diagnosis**: distance, bearing and the first-Fresnel-zone formula agree
+with the other tool (case 1's exact formula match; case 2's near-identical
+F1/required figures; both tools agree on bearing and total distance).
+Case 1 is too short (1.22 km, earth bulge about 0.04 m) to test the
+earth-curvature term at all, and cases 2 and 3 were computed with releases
+before 0.2.0, which applied the curvature in the wrong direction (see the
+note below), so this table does not validate the curvature term. The
+remaining ~13-14 m gap in cases 2/3, consistent in both magnitude and
+location, was attributed to the **elevation data source**: this package uses
+Copernicus DEM GLO-90 (90 m), uptowhere.com uses AWS Terrain Tiles (~30 m)
+-- two different DEM products that commonly diverge by this much on steep,
+sharp local relief like an escarpment edge. Doubling this package's sample
+count (50 -> 100 points) changed the result by <1 m, not ~14 m, so the gap
+is not an artifact of under-sampling. That attribution is no longer
+complete: the wrong-direction curvature accounted for about 5 m of the gap
+at the critical point (twice the bulge, 4.43 km from one end of a 14.46 km
+path), and the remaining gap has not been re-measured with 0.2.0.
 
-**Conclusion**: the core geometry/clearance calculation is trustworthy.
-The elevation-data layer carries real, now-quantified uncertainty
-(order of 10-15 m at steep terrain features) that a real RF engineer
-should be aware of before this is used for anything beyond a demo --
-exactly what the mandatory DSM disclaimer exists to communicate, not
-boilerplate.
+**Conclusion**: distance, bearing and the Fresnel-zone calculation agree with
+an independent implementation, and from 0.2.0 the sign and size of the
+earth-curvature term are checked against an independent straight-line
+geometry (`tests/test_curvature_convention.py`). That check covers the
+curvature term only; the table above has not been re-run with 0.2.0, and the
+model as a whole has not been validated beyond what is stated here. The
+elevation-data layer carries real uncertainty -- estimated at the order of
+10-15 m at steep terrain features, from the comparison above before the
+curvature correction, and not re-measured -- and the DEM is a surface model.
+A real RF engineer should be aware of both before this is used for anything
+beyond a demo -- exactly what the mandatory DSM disclaimer exists to
+communicate, not boilerplate.
+
+> **Note on the earth-curvature convention (0.2.0).** Releases before 0.2.0 applied the effective-earth bulge in the wrong direction (it
+> added clearance instead of removing it). From 0.2.0 the bulge is added to the terrain (`terrain_adjusted = ground + bulge`), so clearance
+> is lower by twice the bulge: approximately `D^2 / (4 * k * R)` at the middle of a path of `D` km (see `CHANGELOG.md`). The validation
+> table above was produced before this correction and has not been re-derived.
+> `aei_link_clearance.terrain.CLEARANCE_CONVENTION` names the convention in use.
 
 ## Install
 
