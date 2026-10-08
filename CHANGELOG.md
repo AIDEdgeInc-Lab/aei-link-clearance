@@ -2,6 +2,14 @@
 
 All notable changes to this project are recorded here.
 
+## [0.2.1] - 2026-10-08
+
+### Changed
+
+- README now carries the standard PyPI / Python / License / CI badge row, and the PyPI project links point Homepage to
+  https://aidedgeinc.com/tools/ with a Source link to this repository. No code, API, dependency or result change: analysis results are
+  identical to 0.2.0.
+
 ## [0.2.0] - 2026-10-08
 
 ### Changed -- clearance results are different (please re-run saved analyses)
