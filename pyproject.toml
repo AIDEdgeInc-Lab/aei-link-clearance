@@ -35,3 +35,8 @@ where = ["src"]
 
 [tool.setuptools.package-data]
 aei_link_clearance = ["py.typed"]
+
+[project.urls]
+Homepage = "https://aidedgeinc.com/tools/"
+Source = "https://github.com/AIDEdgeInc-Lab/aei-link-clearance"
+Issues = "https://github.com/AIDEdgeInc-Lab/aei-link-clearance/issues"
