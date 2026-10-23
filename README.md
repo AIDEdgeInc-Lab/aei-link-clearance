@@ -12,6 +12,10 @@ copy -- this package adds only what aei-geo-features deliberately excludes:
 bearing/azimuth, elevation-profile sampling, Fresnel-zone geometry, and
 earth-curvature-adjusted terrain clearance.
 
+Developed by AID Edge Inc. as the engineering foundation of Velorona. [Velorona for QGIS](https://plugins.qgis.org/plugins/velorona/)
+calls this package directly; [Velorona Map](https://map.velorona.ai/) runs a browser port held to it by
+parity tests.
+
 ## What this is not
 
 - Not "is this link clear right now" -- single-link planning checklists
