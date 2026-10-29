@@ -15,7 +15,7 @@ from typing import List, Literal, Optional
 
 from aei_geo_features.geo import EARTH_RADIUS_KM, haversine_distance, validate_coordinate
 
-from .elevation import get_elevations
+from .elevation import SOURCE as ELEVATION_SOURCE, get_elevations
 from .fresnel import fresnel_radius_m
 from .geometry import bearing_deg, great_circle_intermediate_point
 
@@ -103,6 +103,7 @@ class LinkClearanceResult:
     percent_fresnel_clear: float  # terrain_clearance_m / first_fresnel_radius_m, at the critical point
     near_threshold: bool  # see _is_near_threshold() -- an elevation-uncertainty check, not a new los_status
     profile: List[ProfilePoint] = field(default_factory=list)
+    elevation_source: str = ELEVATION_SOURCE  # where the ground heights came from; the online default unless a provider was passed
 
 
 def _classify(percent_fresnel_clear: float) -> LosStatus:
@@ -146,8 +147,13 @@ def analyze_link(
     frequency_ghz: float,
     k_factor: float = DEFAULT_K_FACTOR,
     n_samples: int = DEFAULT_SAMPLE_COUNT,
+    elevation_provider=None,
 ) -> LinkClearanceResult:
     """Full terrain-clearance analysis for one microwave link.
+
+    ``elevation_provider``: any object with ``source`` and ``get_elevations(points)`` (see ``providers``). ``None`` (the default) keeps the
+    historical behaviour exactly: the Open-Meteo client is called directly, once, with no cache or retry. A provider that cannot give a
+    height for every point raises ``ElevationDataError`` (never 0 m); the result's ``elevation_source`` names what was used.
 
     Coordinate validation and the total path distance are both reused
     directly from aei_geo_features, not reimplemented. Elevation profile
@@ -168,7 +174,14 @@ def analyze_link(
     sample_points = [
         great_circle_intermediate_point(site_a_lat, site_a_lon, site_b_lat, site_b_lon, f) for f in fractions
     ]
-    ground_elevations = get_elevations(sample_points)
+    if elevation_provider is None:
+        ground_elevations = get_elevations(sample_points)
+        elevation_source = ELEVATION_SOURCE
+    else:
+        from .providers import validate_elevations
+
+        elevation_source = str(elevation_provider.source)
+        ground_elevations = validate_elevations(elevation_provider.get_elevations(sample_points), n_samples, elevation_source)
 
     antenna_a_top_m = ground_elevations[0] + site_a_height_m
     antenna_b_top_m = ground_elevations[-1] + site_b_height_m
@@ -228,4 +241,5 @@ def analyze_link(
         percent_fresnel_clear=percent_clear_critical,
         near_threshold=near_threshold,
         profile=profile,
+        elevation_source=elevation_source,
     )
