@@ -10,7 +10,15 @@ clearance. See README.md for the methodology and its sources.
 
 from .explain import explain
 from .fresnel import fresnel_radius_m
+from .elevation import (
+    DEMCrsMismatchError,
+    ElevationCoverageError,
+    ElevationDataError,
+    ElevationServiceUnavailable,
+    RetryPolicy,
+)
 from .geometry import bearing_deg
+from .providers import ElevationProvider, LocalDEMProvider, OpenMeteoProvider
 from .terrain import (
     LosStatus,
     LinkClearanceResult,
@@ -19,7 +27,7 @@ from .terrain import (
     earth_bulge_m,
 )
 
-__version__ = "0.2.1"
+__version__ = "0.3.0"
 
 __all__ = [
     "__version__",
@@ -27,6 +35,14 @@ __all__ = [
     "fresnel_radius_m",
     "earth_bulge_m",
     "analyze_link",
+    "ElevationProvider",
+    "OpenMeteoProvider",
+    "LocalDEMProvider",
+    "RetryPolicy",
+    "ElevationDataError",
+    "ElevationCoverageError",
+    "DEMCrsMismatchError",
+    "ElevationServiceUnavailable",
     "explain",
     "LinkClearanceResult",
     "ProfilePoint",

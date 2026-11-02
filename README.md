@@ -69,6 +69,21 @@ requires you to obtain your own paid Open-Meteo subscription
 (https://open-meteo.com/en/pricing) -- this package does not include or
 imply one.**
 
+## Choosing where heights come from (0.3.0)
+
+```python
+from aei_link_clearance import analyze_link, OpenMeteoProvider, LocalDEMProvider
+
+online = OpenMeteoProvider()                       # cache + backoff; reuse one instance across links
+r = analyze_link(..., elevation_provider=online)
+
+dem = LocalDEMProvider(my_sampler, "site-dem.tif")  # my_sampler(lat, lon) -> metres or None (WGS84 in)
+r = analyze_link(..., elevation_provider=dem)       # raises ElevationCoverageError if any point has no value
+print(r.elevation_source)
+```
+
+Without `elevation_provider` nothing changes from 0.2.x. Failure modes: a point outside the DEM or on nodata, or a DEM in a different coordinate system without reprojection, raises an `ElevationCoverageError` (nothing is substituted); the online service answering 429/5xx is retried, then raised as `ElevationServiceUnavailable` (`transient`, `daily`, `kind`), and further calls fail fast for 30 s after a rate limit.
+
 ## Validation check (against uptowhere.com/line-of-sight-calculator)
 
 Three real Southern Ontario coordinate pairs, all at 5.8 GHz (the closest

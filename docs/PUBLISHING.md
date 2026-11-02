@@ -41,16 +41,16 @@ of what triggered it.
 
 ## Current state
 
-- `.github/workflows/publish.yml` triggers on a published GitHub Release
-  (routes to the `pypi` job only) or manual `workflow_dispatch` (routes to
-  either `testpypi` or `pypi`, `testpypi` by default). It has no
-  `push`/`pull_request` trigger.
-- `ci.yml` runs on push/PR and validates the test suite; it does not
-  publish anywhere.
-- Before the first release, complete the one-time setup: create the GitHub
-  `pypi` and `testpypi` Environments (with a required reviewer on `pypi`)
-  and register a Trusted Publisher on pypi.org and test.pypi.org for this
-  repository, `publish.yml`, and the matching environment. Until then both
-  publish jobs will fail authentication, which is expected.
-- Check https://pypi.org/project/aei-link-clearance/ directly for the
-  current release state rather than trusting this file to stay up to date.
+Updated 2026-11-01 from the repository and PyPI, not from memory:
+
+- `.github/workflows/publish.yml` triggers on a published GitHub Release (routes to the `pypi` job only) or manual `workflow_dispatch`
+  (routes to either `testpypi` or `pypi`, `testpypi` by default). It has no `push`/`pull_request` trigger.
+- **PyPI (pypi.org): the Trusted Publisher is registered and in use.** Releases 0.1.0, 0.2.0 and 0.2.1 were each published by a run of
+  this workflow (`release` event, environment `pypi`), and PyPI holds the attestations for them. No token is used.
+- **test.pypi.org:** whether a Trusted Publisher is registered there was not checked; the `testpypi` job has not been used for a release.
+- **GitHub Environments:** `pypi` has a required reviewer, so a production deployment pauses for approval in the Actions UI; `testpypi`
+  has no protection rule.
+- `ci.yml` runs on push/PR and validates the test suite; it does not publish anywhere.
+- To release: merge to `main`, create the tag `vX.Y.Z` on it, publish a GitHub Release for that tag, approve the `pypi` deployment, then check
+  `pip index versions aei-link-clearance`.
+- Check https://pypi.org/project/aei-link-clearance/ directly for the current release state rather than trusting this file to stay up to date.
