@@ -2,7 +2,7 @@
 
 All notable changes to this project are recorded here.
 
-## [0.3.0] - unreleased (awaiting owner release approval)
+## [0.3.0] - 2026-11-01
 
 Additive: no existing call changes behaviour. `analyze_link(...)` without the new argument is byte-identical to 0.2.1 (same Open-Meteo call, no cache, no retry).
 

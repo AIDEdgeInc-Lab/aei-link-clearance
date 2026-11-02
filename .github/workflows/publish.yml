@@ -11,8 +11,8 @@ name: Publish
 # A manual run defaults to testpypi so a production publish is always an
 # explicit, deliberate choice, never the accidental default.
 #
-# NOTE: Trusted Publisher relationships are
-# registered on both pypi.org and test.pypi.org - see docs/PUBLISHING.md.
+# NOTE: the Trusted Publisher relationship is registered on pypi.org
+# (test.pypi.org was not checked) - see docs/PUBLISHING.md.
 # The pypi environment additionally requires manual reviewer approval
 # before any deployment to it proceeds, regardless of what triggered it.
 on:
@@ -106,9 +106,6 @@ jobs:
 
 # No PyPI API token is used anywhere in this workflow. Both publish jobs
 # authenticate exclusively via PyPI Trusted Publishing (OIDC) - see
-# docs/PUBLISHING.md. This requires a one-time "pending publisher"
-# registration on pypi.org and test.pypi.org (owner=AIDEdgeInc-Lab,
-# repo=aei-link-clearance, workflow=publish.yml, environment=pypi/testpypi
-# respectively) before either publish job can succeed - that registration
-# is a manual, human, web-UI action on PyPI's own site and cannot be done
-# through this repository or its GitHub Actions. Not done yet.
+# docs/PUBLISHING.md. The Trusted Publisher is registered on pypi.org
+# (owner=AIDEdgeInc-Lab, repo=aei-link-clearance, workflow=publish.yml,
+# environment=pypi) and releases 0.1.0-0.2.1 were published through it.
