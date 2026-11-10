@@ -2,6 +2,22 @@
 
 All notable changes to this project are recorded here.
 
+## [0.3.1] - unreleased (release candidate)
+
+Security baseline. Valid input gives byte-identical results to 0.3.0; only invalid input and one output cell change.
+
+### Fixed
+
+- `analyze_link` refuses a non-finite (`nan`, `inf`) antenna height, frequency or k-factor, and a non-integer `n_samples`, with a `ValueError` naming the field, before any elevation request. In 0.3.0 such input produced a NaN clearance ratio that read as neither clear nor obstructed and sorted unpredictably in a batch. numpy numbers are still accepted.
+- `parse_links_csv` reports a row whose numbers are non-finite (`float()` accepts `"nan"` and `"inf"`) as `Row N (id): not a finite number: <columns>, skipped.` instead of passing it on. The `Row N (id)` prefix is unchanged, so callers that parse it keep working.
+- `results_to_csv` writes a `link_id` that begins with `=`, `+`, `-` or `@` with a leading apostrophe, so a spreadsheet does not evaluate it as a formula. Plain numbers and "number unit" text are left alone. Same rule as aei-workflow-runner (`csvsafe.py`) and the Velorona Web Map. GeoJSON output is unchanged.
+- The Open-Meteo client refuses a response that is not a JSON object, or whose `elevation` field is not a list, with `ElevationDataError` (previously an `AttributeError` or a misleading count error).
+
+### Added
+
+- `SECURITY.md`: reporting policy and the library's security boundaries, controls and tests.
+- `batch.csv_text_cell(text)`: the formula guard, usable on its own.
+
 ## [0.3.0] - 2026-11-01
 
 Additive: no existing call changes behaviour. `analyze_link(...)` without the new argument is byte-identical to 0.2.1 (same Open-Meteo call, no cache, no retry).

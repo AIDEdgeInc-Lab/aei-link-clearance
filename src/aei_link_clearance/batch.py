@@ -12,6 +12,8 @@ from __future__ import annotations
 import csv
 import io
 import json
+import math
+import re
 from typing import List, Tuple
 
 from .explain import explain
@@ -66,6 +68,11 @@ def parse_links_csv(csv_text: str) -> Tuple[List[dict], List[str]]:
         except (TypeError, ValueError):
             errors.append(f"Row {i} ({link_id}): non-numeric coordinate, height, or frequency, skipped.")
             continue
+        # float() accepts "nan", "inf" and "-infinity"; such a row is reported, never analysed.
+        not_finite = [k for k, v in row.items() if isinstance(v, float) and not math.isfinite(v)]
+        if not_finite:
+            errors.append(f"Row {i} ({link_id}): not a finite number: {', '.join(not_finite)}, skipped.")
+            continue
         rows.append(row)
     return rows, errors
 
@@ -100,6 +107,22 @@ def analyze_links(
     return results
 
 
+# Spreadsheet-formula guard for text cells. Same rule as aei-workflow-runner's csvsafe.py and the Web Map's csvCell():
+# a spreadsheet evaluates a cell that starts with = + - @ even inside CSV quotes, so such a cell gets a leading apostrophe;
+# plain numbers ("-3.5") and "number unit" text ("-210.00 m") are left alone. link_id comes from the caller's own file.
+_PLAIN_NUMBER = re.compile(r"^[+-]?(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][+-]?\d+)?$")
+_NUMBER_WITH_UNIT = re.compile(r"^[+-]?(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][+-]?\d+)?(?: [A-Za-z\u00b0\u00b5%/]+)+$")
+_FORMULA_START = re.compile(r"^[=+\-@]")
+
+
+def csv_text_cell(text: str) -> str:
+    """``text`` as a CSV cell a spreadsheet will not evaluate as a formula."""
+    t = re.sub(r"^[\s\u0000-\u001f]+", "", text)
+    if _FORMULA_START.match(t) and not _PLAIN_NUMBER.match(t) and not _NUMBER_WITH_UNIT.match(t):
+        return "'" + text
+    return text
+
+
 def results_to_csv(results: List[LinkClearanceResult]) -> str:
     """One CSV row per link: distance, Fresnel and clearance figures, ranking
     ratio, status, near_threshold flag, and a plain-language explanation --
@@ -123,7 +146,7 @@ def results_to_csv(results: List[LinkClearanceResult]) -> str:
     for r in results:
         writer.writerow(
             [
-                r.link_id,
+                csv_text_cell(r.link_id),
                 f"{r.distance_km:.3f}",
                 f"{r.first_fresnel_radius_m:.2f}",
                 f"{r.required_clearance_m:.2f}",

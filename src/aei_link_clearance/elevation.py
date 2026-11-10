@@ -157,7 +157,11 @@ def get_elevations(
         lats = ",".join(str(p[0]) for p in batch)
         lons = ",".join(str(p[1]) for p in batch)
         data = _get_json(ELEVATION_URL, {"latitude": lats, "longitude": lons}, timeout, retry, sleep)
+        if not isinstance(data, dict):
+            raise ElevationDataError("Open-Meteo Elevation API returned a response that is not a JSON object -- nothing was read from it.")
         batch_elevations = data.get("elevation")
+        if batch_elevations is not None and not isinstance(batch_elevations, list):
+            raise ElevationDataError("Open-Meteo Elevation API returned an 'elevation' field that is not a list -- nothing was read from it.")
         if batch_elevations is None or len(batch_elevations) != len(batch):
             raise ElevationDataError(
                 f"Open-Meteo Elevation API returned {len(batch_elevations or [])} values "
