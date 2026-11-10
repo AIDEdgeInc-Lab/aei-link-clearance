@@ -7,7 +7,7 @@ name = "aei-link-clearance"
 dynamic = ["version"]
 description = "Batch microwave link terrain clearance and margin-based risk ranking, built on aei-geo-features."
 readme = "README.md"
-requires-python = ">=3.9"
+requires-python = ">=3.10"
 license = "Apache-2.0"
 license-files = ["LICENSE"]
 authors = [{ name = "AID Edge Inc." }]
@@ -23,9 +23,12 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-elevation = ["requests>=2.31"]
+# Security floors (2026-11): requests>=2.33 and urllib3>=2.8 close CVE-2026-25645 (requests) and five urllib3 advisories
+# (CVE-2026-44431, -44432, -97687, -97688, -97689). urllib3 is listed directly because requests alone (urllib3<3) would let an
+# environment keep a vulnerable urllib3. Both need Python >=3.10, which is why requires-python is >=3.10.
+elevation = ["requests>=2.33", "urllib3>=2.8"]
 batch = ["pandas>=1.5"]
-dev = ["pytest>=7.0", "requests>=2.31", "pandas>=1.5"]
+dev = ["pytest>=7.0", "requests>=2.33", "urllib3>=2.8", "pandas>=1.5"]
 
 [tool.setuptools.dynamic]
 version = { attr = "aei_link_clearance.__version__" }

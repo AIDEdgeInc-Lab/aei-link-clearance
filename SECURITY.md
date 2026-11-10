@@ -8,8 +8,8 @@ supported.
 
 | Version | Supported |
 |---|---|
-| 0.3.x | Yes, best-effort |
-| < 0.3.0 | No |
+| 0.4.x | Yes, best-effort |
+| < 0.4.0 | No |
 
 ## Reporting a vulnerability
 
@@ -51,6 +51,8 @@ file is named.
 | Batch CSV input | Missing columns and empty files refused; rows with non-numeric or non-finite (`nan`, `inf`) values are reported and skipped, never analysed | `batch.parse_links_csv` | `test_batch.py`, `test_security_baseline.py` |
 | CSV output opened in a spreadsheet | `link_id` (the only caller-supplied text cell) is written so a spreadsheet cannot evaluate it as a formula; same rule as aei-workflow-runner and the Velorona Web Map | `batch.csv_text_cell` | `test_security_baseline.py` |
 | Local DEM | A raster point outside coverage, on nodata, or a raster in the wrong CRS is refused; nothing is substituted | `providers.LocalDEMProvider` | `test_providers.py` |
+
+Dependencies: the `elevation` extra requires `requests>=2.33` and `urllib3>=2.8` (security floors; Python >=3.10).
 
 Privacy: an online elevation lookup sends the sampled path coordinates to Open-Meteo. When coordinates must not leave the machine,
 use `LocalDEMProvider` with a raster you hold; no request is then made.

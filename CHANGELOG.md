@@ -2,9 +2,14 @@
 
 All notable changes to this project are recorded here.
 
-## [0.3.1] - unreleased (release candidate)
+## [0.4.0] - unreleased (release candidate)
 
-Security baseline. Valid input gives byte-identical results to 0.3.0; only invalid input and one output cell change.
+Security baseline. Valid input gives byte-identical results to 0.3.0; only invalid input and one output cell change. Minor version because Python 3.9 support ends (no API change).
+
+### Changed (Python support and dependency floors)
+
+- **Python 3.9 is no longer supported (`requires-python >=3.10`).** Every patched release of `requests` (2.33.0+) and `urllib3` (2.7.0+/2.8.0+) requires Python 3.10, so on Python 3.9 the network extras could only install versions with known advisories. pip on Python 3.9 keeps resolving the previous release.
+- **Security floors in the network extras:** `requests>=2.33` and `urllib3>=2.8`. These close CVE-2026-25645 (requests) and CVE-2026-44431, -44432, -97687, -97688 and -97689 (urllib3). `urllib3` is listed directly so that an environment cannot keep an older, vulnerable copy that `requests` alone would accept.
 
 ### Fixed
 
