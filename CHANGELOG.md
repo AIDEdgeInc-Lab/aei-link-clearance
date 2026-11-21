@@ -2,6 +2,13 @@
 
 All notable changes to this project are recorded here.
 
+## [Unreleased]
+
+No code, API or result changes.
+
+- README: the limits section is now a "Scope" section; all caveats and non-claims are kept.
+- `.gitignore`: local secret files (`.env`, `*.pem`, `*.key`) and build output.
+
 ## [0.4.0] - unreleased (release candidate)
 
 Security baseline. Valid input gives byte-identical results to 0.3.0; only invalid input and one output cell change. Minor version because Python 3.9 support ends (no API change).
