@@ -16,19 +16,20 @@ Developed by AID Edge Inc. as the engineering foundation of Velorona. [Velorona 
 calls this package directly; [Velorona Map](https://map.velorona.ai/) runs a browser port held to it by
 parity tests.
 
-## What this is not
+## Scope
 
-- Not "is this link clear right now" -- single-link planning checklists
-  already exist (Pathloss, uptowhere.com). This batch-processes many
-  candidate links and ranks them by clearance margin, surfacing
-  low-margin links as elevated risk even when they're technically
-  "clear" under a binary pass/fail.
-- Not a predictor. No time-series or change-detection data exists in this
-  version -- it does not forecast future obstruction.
-- Not a claim of compliance with any named standard. Described here as
-  "based on standard microwave link engineering practice," with sources
-  below -- not "ITU-R P.530 compliant."
-- Not a replacement for a site survey or professional link design.
+- **Batch ranking.** It processes many candidate links and ranks them by
+  clearance margin, surfacing low-margin links as elevated risk even when
+  they are technically "clear" under a binary pass/fail. For a single-link
+  "is this link clear right now" check, planning tools such as Pathloss and
+  uptowhere.com already exist.
+- **Terrain as it is today.** There is no time-series or change-detection
+  data in this version, so it does not forecast future obstruction.
+- **Method.** Based on standard microwave link engineering practice, with
+  sources below. It makes no claim of compliance with ITU-R P.530 or any
+  other named standard.
+- **Use with a site survey.** It supports, and does not replace, a site
+  survey and professional link design.
 
 ## Methodology
 
