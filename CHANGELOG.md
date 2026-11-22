@@ -2,7 +2,7 @@
 
 All notable changes to this project are recorded here.
 
-## [0.4.0] - unreleased (release candidate)
+## [0.4.0] - 2026-11-22
 
 Security baseline. Valid input gives byte-identical results to 0.3.0; only invalid input and one output cell change. Minor version because Python 3.9 support ends (no API change).
 
