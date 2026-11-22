@@ -10,6 +10,8 @@ geometry below.
 """
 from __future__ import annotations
 
+import math
+import numbers
 from dataclasses import dataclass, field
 from typing import List, Literal, Optional
 
@@ -52,6 +54,18 @@ ELEVATION_UNCERTAINTY_M = 15.0
 CLEARANCE_CONVENTION = "bulge-added-to-terrain"
 
 
+def _finite(value) -> bool:
+    """True for a real, finite number. NaN passes every ``<=``/``>`` comparison as False, so a plain range check lets it through."""
+    if type(value) is float or type(value) is int:   # fast path for the common case; numpy and other Real types below
+        return math.isfinite(value)
+    return isinstance(value, numbers.Real) and not isinstance(value, bool) and math.isfinite(value)
+
+
+def _require_finite(name: str, value) -> None:
+    if not _finite(value):
+        raise ValueError(f"{name} must be a finite number: {value!r}")
+
+
 def earth_bulge_m(d1_km: float, d2_km: float, k_factor: float = DEFAULT_K_FACTOR) -> float:
     """Earth-curvature bulge height, in metres, at a point ``d1_km`` from
     one end and ``d2_km`` from the other of a path, using the standard
@@ -68,6 +82,7 @@ def earth_bulge_m(d1_km: float, d2_km: float, k_factor: float = DEFAULT_K_FACTOR
     subtracted it from the terrain instead, which overstated clearance by
     twice the bulge (about 42.7 m at the middle of a 38.1 km path).
     """
+    _require_finite("k_factor", k_factor)
     if k_factor <= 0:
         raise ValueError(f"k_factor must be positive: {k_factor}")
     return (d1_km * d2_km) / (2 * k_factor * EARTH_RADIUS_KM) * 1000.0
@@ -162,8 +177,15 @@ def analyze_link(
     """
     validate_coordinate(site_a_lat, site_a_lon)
     validate_coordinate(site_b_lat, site_b_lon)
+    # Non-finite inputs are refused before any request is made: NaN would otherwise pass the range checks below and come back as a
+    # NaN clearance ratio, which sorts unpredictably and reads as neither clear nor obstructed.
+    for name, value in (("site_a_height_m", site_a_height_m), ("site_b_height_m", site_b_height_m),
+                        ("frequency_ghz", frequency_ghz), ("k_factor", k_factor)):
+        _require_finite(name, value)
     if frequency_ghz <= 0:
         raise ValueError(f"frequency_ghz must be positive: {frequency_ghz}")
+    if isinstance(n_samples, bool) or not isinstance(n_samples, numbers.Integral):
+        raise ValueError(f"n_samples must be an integer: {n_samples!r}")
     if n_samples < 2:
         raise ValueError(f"n_samples must be at least 2: {n_samples}")
 
